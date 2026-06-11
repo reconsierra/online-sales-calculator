@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Australian Handmade Platform Fee Calculator</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background: #f5f4f0;
+    color: #1a1a1a;
+    min-height: 100vh;
+    padding: 2rem 1rem;
+  }
+
+  .card {
+    background: #fff;
+    border-radius: 16px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+    max-width: 820px;
+    margin: 0 auto;
+    padding: 2rem;
+  }
+
+  h1 {
+    font-size: 20px;
+    font-weight: 600;
+    color: #1a1a1a;
+    margin-bottom: 4px;
+  }
+
+  .subtitle {
+    font-size: 14px;
+    color: #666;
+    margin-bottom: 1.75rem;
+  }
+
+  .controls {
+    background: #f5f4f0;
+    border-radius: 12px;
+    padding: 1.25rem 1.5rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .slider-row {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 12px;
+  }
+
+  .slider-row:last-child { margin-bottom: 0; }
+
+  .slider-row label {
+    font-size: 14px;
+    color: #555;
+    min-width: 160px;
+  }
+
+  .slider-row label strong {
+    color: #1a1a1a;
+  }
+
+  .slider-row input[type="range"] {
+    flex: 1;
+    accent-color: #378ADD;
+    height: 4px;
+    cursor: pointer;
+  }
+
+  .toggle-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 1.5rem;
+    padding: 10px 14px;
+    background: #eef5fc;
+    border-radius: 10px;
+    cursor: pointer;
+    user-select: none;
+    border: 1.5px solid transparent;
+    transition: border-color 0.15s;
+  }
+
+  .toggle-row.active {
+    border-color: #378ADD;
+  }
+
+  .toggle-row input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    accent-color: #378ADD;
+    cursor: pointer;
+    flex-shrink: 0;
+  }
+
+  .toggle-row span {
+    font-size: 14px;
+    color: #333;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+    margin-bottom: 1.5rem;
+  }
+
+  thead tr {
+    border-bottom: 1px solid #e5e5e5;
+  }
+
+  th {
+    padding: 8px 8px;
+    font-weight: 600;
+    color: #888;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+  }
+
+  th:first-child { text-align: left; }
+  th:not(:first-child) { text-align: right; }
+
+  tbody tr {
+    border-bottom: 1px solid #f0f0f0;
+    transition: background 0.1s;
+  }
+
+  tbody tr:hover { background: #fafafa; }
+
+  tbody tr.best { background: #f0f8ec; }
+  tbody tr.best:hover { background: #e8f4e0; }
+
+  td {
+    padding: 10px 8px;
+    color: #1a1a1a;
+  }
+
+  td:first-child { font-weight: 500; }
+  td:not(:first-child) { text-align: right; color: #444; }
+
+  td.cost { color: #c0392b; font-weight: 500; }
+  td.profit { color: #1a1a1a; font-weight: 600; }
+  td.muted { color: #999; }
+
+  .best-badge {
+    display: inline-block;
+    font-size: 10px;
+    font-weight: 600;
+    background: #3b6d11;
+    color: #fff;
+    padding: 2px 7px;
+    border-radius: 20px;
+    margin-left: 6px;
+    vertical-align: middle;
+    letter-spacing: 0.02em;
+  }
+
+  .bar-section h2 {
+    font-size: 13px;
+    font-weight: 600;
+    color: #888;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    margin-bottom: 12px;
+  }
+
+  .bar-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 9px;
+  }
+
+  .bar-name {
+    font-size: 12px;
+    color: #666;
+    min-width: 170px;
+    text-align: right;
+  }
+
+  .bar-outer {
+    flex: 1;
+    background: #f0f0f0;
+    border-radius: 5px;
+    height: 22px;
+    overflow: hidden;
+  }
+
+  .bar-inner {
+    height: 100%;
+    border-radius: 5px;
+    display: flex;
+    align-items: center;
+    padding: 0 8px;
+    transition: width 0.35s ease;
+  }
+
+  .bar-inner span {
+    font-size: 11px;
+    color: #fff;
+    font-weight: 600;
+    white-space: nowrap;
+  }
+
+  .footnote {
+    margin-top: 1.5rem;
+    font-size: 12px;
+    color: #999;
+    line-height: 1.6;
+    border-top: 1px solid #f0f0f0;
+    padding-top: 1rem;
+  }
+
+  @media (max-width: 600px) {
+    .card { padding: 1.25rem; }
+    .bar-name { min-width: 110px; font-size: 11px; }
+    table { font-size: 12px; }
+    th { font-size: 11px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="card">
+  <h1>Australian Handmade Platform Fee Calculator</h1>
+  <p class="subtitle">Compare selling costs across major platforms. Adjust the sliders to match your products.</p>
+
+  <div class="controls">
+    <div class="slider-row">
+      <label>Sale price: <strong id="priceLabel">$50</strong></label>
+      <input type="range" id="priceRange" min="10" max="300" step="5" value="50">
+    </div>
+    <div class="slider-row">
+      <label>Shipping charged: <strong id="shipLabel">$10</strong></label>
+      <input type="range" id="shipRange" min="0" max="30" step="1" value="10">
+    </div>
+    <div class="slider-row">
+      <label>Pieces sold/month: <strong id="qtyLabel">10</strong></label>
+      <input type="range" id="qtyRange" min="1" max="200" step="1" value="10">
+    </div>
+  </div>
+
+  <div class="toggle-row" id="toggleRow" onclick="toggleMonthly()">
+    <input type="checkbox" id="monthlyToggle">
+    <span>Show monthly turnover &amp; total costs (includes subscription fee)</span>
+  </div>
+
+  <div id="tableWrap"></div>
+  <div class="bar-section">
+    <h2 id="barLabel">Fees per sale — lowest to highest</h2>
+    <div id="barWrap"></div>
+  </div>
+
+  <div class="footnote">
+    <strong>Notes:</strong> Etsy fees include ~AU$0.30 listing fee + 6.5% transaction + 3% + $0.25 payment processing (domestic).
+    eBay free tier applies to AU sellers with ≤$25k annual sales (introduced May 2026) — only $0.33 fixed fee per order applies.
+    Madeit: $10/month membership, zero commission, 2% + $0.35 payment processing. Australian-made only.
+    Shopify: ~$49/month (Basic plan), 2% + $0.30 Shopify Payments. No marketplace audience — you drive your own traffic.
+    Facebook Marketplace: free for local pickup. No built-in seller protection.
+    Payout figures are after platform fees only — postage costs are not deducted.
+  </div>
+</div>
+
+<script>
+var isMonthly = false;
+
+var platforms = [
+  { name: 'Facebook Marketplace', monthly: 0,  fee: function(p,s){ return 0; },                                  color: '#7F77DD' },
+  { name: 'eBay (free tier)',      monthly: 0,  fee: function(p,s){ return 0.33; },                               color: '#BA7517' },
+  { name: 'Madeit',               monthly: 10, fee: function(p,s){ return (p+s)*0.02+0.35; },                    color: '#639922' },
+  { name: 'Etsy',                 monthly: 0,  fee: function(p,s){ return 0.30+(p+s)*0.065+(p+s)*0.03+0.25; },  color: '#378ADD' },
+  { name: 'Shopify',              monthly: 49, fee: function(p,s){ return (p+s)*0.02+0.30; },                    color: '#D85A30' }
+];
+
+function fmt(n) {
+  return '$' + n.toLocaleString('en-AU', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+}
+
+function toggleMonthly() {
+  isMonthly = !isMonthly;
+  document.getElementById('monthlyToggle').checked = isMonthly;
+  document.getElementById('toggleRow').classList.toggle('active', isMonthly);
+  update();
+}
+
+function update() {
+  var price = parseInt(document.getElementById('priceRange').value);
+  var ship  = parseInt(document.getElementById('shipRange').value);
+  var qty   = parseInt(document.getElementById('qtyRange').value);
+
+  document.getElementById('priceLabel').textContent = '$' + price;
+  document.getElementById('shipLabel').textContent  = '$' + ship;
+  document.getElementById('qtyLabel').textContent   = qty;
+
+  var data = platforms.map(function(pl) {
+    var perSaleFee = pl.fee(price, ship);
+    return {
+      name:        pl.name,
+      color:       pl.color,
+      monthly:     pl.monthly,
+      perSaleFee:  perSaleFee,
+      payout:      price - perSaleFee,
+      pct:         perSaleFee / price * 100,
+      mTurnover:   price * qty,
+      mTxFees:     perSaleFee * qty,
+      mSub:        pl.monthly,
+      mTotalCost:  perSaleFee * qty + pl.monthly,
+      mNetPayout:  price * qty - (perSaleFee * qty + pl.monthly)
+    };
+  });
+
+  data.sort(function(a,b) {
+    return isMonthly ? a.mTotalCost - b.mTotalCost : a.perSaleFee - b.perSaleFee;
+  });
+
+  var maxBar = isMonthly
+    ? Math.max.apply(null, data.map(function(d){ return d.mTotalCost; }))
+    : Math.max.apply(null, data.map(function(d){ return d.perSaleFee; }));
+
+  // Table
+  var html = '<table><thead><tr>';
+  html += '<th>Platform</th>';
+  if (isMonthly) {
+    html += '<th>Turnover</th><th>Sale fees</th><th>Subscription</th><th>Total costs</th><th>Net payout</th>';
+  } else {
+    html += '<th>Fees/sale</th><th>% of price</th><th>Your payout</th><th>Monthly fee</th>';
+  }
+  html += '</tr></thead><tbody>';
+
+  data.forEach(function(d, i) {
+    var best = i === 0;
+    html += '<tr class="' + (best ? 'best' : '') + '">';
+    html += '<td>' + d.name + (best ? '<span class="best-badge">lowest cost</span>' : '') + '</td>';
+    if (isMonthly) {
+      html += '<td>' + fmt(d.mTurnover) + '</td>';
+      html += '<td class="muted">' + fmt(d.mTxFees) + '</td>';
+      html += '<td class="muted">' + (d.mSub > 0 ? fmt(d.mSub) : '—') + '</td>';
+      html += '<td class="cost">' + fmt(d.mTotalCost) + '</td>';
+      html += '<td class="profit">' + fmt(d.mNetPayout) + '</td>';
+    } else {
+      html += '<td>' + fmt(d.perSaleFee) + '</td>';
+      html += '<td class="muted">' + d.pct.toFixed(1) + '%</td>';
+      html += '<td>' + fmt(d.payout) + '</td>';
+      html += '<td class="muted">' + (d.monthly > 0 ? fmt(d.monthly) + '/mo' : 'Free') + '</td>';
+    }
+    html += '</tr>';
+  });
+
+  html += '</tbody></table>';
+  document.getElementById('tableWrap').innerHTML = html;
+
+  // Bar chart
+  document.getElementById('barLabel').textContent = isMonthly
+    ? 'Total monthly costs — lowest to highest'
+    : 'Fees per sale — lowest to highest';
+
+  var bars = '';
+  data.forEach(function(d) {
+    var val = isMonthly ? d.mTotalCost : d.perSaleFee;
+    var w   = maxBar > 0 ? Math.max((val / maxBar) * 100, 2).toFixed(1) : 2;
+    bars += '<div class="bar-row">';
+    bars += '<div class="bar-name">' + d.name + '</div>';
+    bars += '<div class="bar-outer"><div class="bar-inner" style="width:' + w + '%;background:' + d.color + ';">';
+    bars += '<span>' + fmt(val) + '</span>';
+    bars += '</div></div></div>';
+  });
+  document.getElementById('barWrap').innerHTML = bars;
+}
+
+document.getElementById('priceRange').addEventListener('input', update);
+document.getElementById('shipRange').addEventListener('input', update);
+document.getElementById('qtyRange').addEventListener('input', update);
+
+update();
+</script>
+</body>
+</html>
