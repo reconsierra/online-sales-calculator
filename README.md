@@ -1,4 +1,4 @@
-# online-sales-calculator
+# Australian based online sales - cost to sell calculator
 
 Here's what's this tool achieves:
 
